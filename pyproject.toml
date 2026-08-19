@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smart-vision-event-filter"
+version = "0.1.0"
+description = "Detects motion events in video streams."
+requires-python = ">=3.14"
+
+# Die tatsächlichen Paket-Abhängigkeiten des Projekts.
+dependencies = [
+    "opencv-python>=4.11,<5",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"} # Python-Code liegt hier.
+py-modules = ["main"] # src/main.py als Modul "main" behandeln.
