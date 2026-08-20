@@ -1,4 +1,5 @@
 import cv2  # OpenCV-Bibliothek: Lesen, Verarbeiten und Anzeigen von Video-Frames.
+import argparse
 
 
 THRESHOLD_VALUE = 60  # Mindest-Helligkeitsänderung, die als Bewegung zählt.
@@ -6,12 +7,22 @@ DILATE_ITERATIONS = 5  # Verbindet nahe beieinanderliegende Bewegungs-Pixel.
 MIN_AREA = 8000  # Kleinere Flächen gelten als Rauschen und werden ignoriert.
 FRAME_DELAY = 1  # Wartezeit für die Tastatureingabe in Millisekunden.
 
-VIDEO_PATH = "videos/sample2.mov"  # Relativer Pfad vom Projekt-Hauptordner.
+
+parser = argparse.ArgumentParser(
+    description="recognices movement in video file"
+)
+parser.add_argument(
+    "video_path",
+    help="path to video file"
+)
+
+args = parser.parse_args()
 
 
 # Video-Datei öffnen. `cap` steht für "capture" und ist das Objekt, das den
 # Zugriff auf die einzelnen Bilder (Frames) des Videos verwaltet.
-video_path = VIDEO_PATH
+video_path = args.video_path
+
 cap = cv2.VideoCapture(video_path)
 if not cap.isOpened():
     # Ohne geöffnetes Video kann die Verarbeitung nicht sinnvoll starten.
