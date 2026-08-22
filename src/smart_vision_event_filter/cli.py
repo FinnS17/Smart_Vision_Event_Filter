@@ -68,10 +68,6 @@ def main():
         # Aktuellen, bereits markierten Frame im Fenster anzeigen.
         cv2.imshow("Motion Detection", frame)
 
-        # Maximal FRAME_DELAY Millisekunden auf eine Taste warten. `& 0xFF` behält
-        # nur die unteren acht Bits des Tastencodes; das macht den Vergleich auf
-        # verschiedenen OpenCV-Plattformen zuverlässig. `ord("q")` liefert den
-        # numerischen Zeichencode der Taste q.
         if cv2.waitKey(FRAME_DELAY) & 0xFF == ord("q"):
             break
 
