@@ -1,6 +1,6 @@
 import numpy as np
 
-from main import detect_motion_boxes
+from smart_vision_event_filter.detection import detect_motion_boxes
 
 
 def test_returns_no_boxes_for_identical_frames():
