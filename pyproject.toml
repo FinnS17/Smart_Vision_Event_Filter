@@ -12,7 +12,10 @@ requires-python = ">=3.14"
 dependencies = [
     "opencv-python>=4.11,<5",
 ]
-
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10"
+]
 [tool.setuptools]
 package-dir = {"" = "src"} # Python-Code liegt hier.
 py-modules = ["main"] # src/main.py als Modul "main" behandeln.
