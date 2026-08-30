@@ -1,24 +1,34 @@
-import cv2  
 import argparse
 
-from smart_vision_event_filter.detection import detect_motion_boxes
+import cv2
 
-FRAME_DELAY = 1  # Wartezeit für die Tastatureingabe in Millisekunden.
+
+from smart_vision_event_filter.detection import detect_motion_boxes
+from smart_vision_event_filter.events import MotionEventTracker
+
+FRAME_DELAY = 20  # Wartezeit für die Tastatureingabe in Millisekunden.
 
 def main():
 
     parser = argparse.ArgumentParser(
-        description="recognices movement in video file"
+        description="Detects motion events in a video file."
     )
     parser.add_argument(
         "video_path",
         help="path to video file"
     )
-
+    parser.add_argument(
+        "--max-gap-frames",
+        type=int,
+        default=5,
+        help="maximum number of consecutive frames without motion inside an event"
+    )
     args = parser.parse_args()
 
 
     video_path = args.video_path
+    max_gap_frames = args.max_gap_frames
+
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         # Ohne geöffnetes Video kann die Verarbeitung nicht sinnvoll starten.
@@ -28,13 +38,17 @@ def main():
     # Zu Beginn gibt es noch kein vorheriges Bild, mit dem wir vergleichen könnten.
     previous_gray = None
 
+    tracker = MotionEventTracker(max_gap_frames=max_gap_frames)
+    frame_number = -1
+
     # Das Video wird Frame für Frame verarbeitet, bis es endet oder `q` gedrückt wird.
     while True:
         # `ret` ist True, wenn ein Frame erfolgreich gelesen wurde.
         ret, frame = cap.read()
-        if not ret:
-            # Bei Videoende oder einem Lesefehler verlassen wir die Schleife.
+        if not ret: # end of video or error
             break
+
+        frame_number += 1
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         if previous_gray is None:
@@ -44,10 +58,14 @@ def main():
             continue
 
         motion_boxes = detect_motion_boxes(previous_gray, gray)
+        has_motion = bool(motion_boxes) # at least one movement
+        completed_event = tracker.update(frame_number=frame_number, has_motion=has_motion)
+        if completed_event is not None:
+            print(f"Motion event: frames "
+                  f"{completed_event.start_frame}-{completed_event.end_frame}")
+
         if motion_boxes:
             # Aus allen Einzelrechtecken wird ein gemeinsames Gesamt-Rechteck gebildet.
-            # `min` bestimmt die am weitesten links/oben liegenden Kanten, `max` die
-            # am weitesten rechts/unten liegenden Kanten.
             min_x = min(x for x, y, w, h in motion_boxes)
             min_y = min(y for x, y, w, h in motion_boxes)
             max_x = max(x + w for x, y, w, h in motion_boxes)
@@ -74,7 +92,13 @@ def main():
         # Erst am Ende wird der aktuelle Frame zur Referenz für die nächste Runde.
         previous_gray = gray
 
-    # Ressourcen aufräumen: Video-Datei freigeben und das OpenCV-Fenster schließen.
+    final_event = tracker.finish() # close last occuring event
+    if final_event is not None:
+        print(
+            f"Motion event: frames "
+            f"{final_event.start_frame}-{final_event.end_frame}"
+        )
+
     cap.release()
     cv2.destroyAllWindows()
 
