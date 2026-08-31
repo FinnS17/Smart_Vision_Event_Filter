@@ -5,8 +5,9 @@ import cv2
 
 from smart_vision_event_filter.detection import detect_motion_boxes
 from smart_vision_event_filter.events import MotionEventTracker
+from smart_vision_event_filter.reporting import save_events_to_json
 
-FRAME_DELAY = 20  # Wartezeit für die Tastatureingabe in Millisekunden.
+FRAME_DELAY = 5  # Wartezeit für die Tastatureingabe in Millisekunden.
 
 def main():
 
@@ -20,26 +21,34 @@ def main():
     parser.add_argument(
         "--max-gap-frames",
         type=int,
-        default=5,
+        default=10,
         help="maximum number of consecutive frames without motion inside an event"
+    )
+
+    parser.add_argument(
+        "--output",
+        default="outputs/motion_events.json",
+        help="path for the generated JSON event report"
     )
     args = parser.parse_args()
 
 
     video_path = args.video_path
     max_gap_frames = args.max_gap_frames
+    json_output_path = args.output
 
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
-        # Ohne geöffnetes Video kann die Verarbeitung nicht sinnvoll starten.
         print(f"Could not open video file at: {video_path}")
         raise SystemExit
+    fps = cap.get(cv2.CAP_PROP_FPS)
 
     # Zu Beginn gibt es noch kein vorheriges Bild, mit dem wir vergleichen könnten.
     previous_gray = None
 
     tracker = MotionEventTracker(max_gap_frames=max_gap_frames)
     frame_number = -1
+    completed_events = []
 
     # Das Video wird Frame für Frame verarbeitet, bis es endet oder `q` gedrückt wird.
     while True:
@@ -61,6 +70,7 @@ def main():
         has_motion = bool(motion_boxes) # at least one movement
         completed_event = tracker.update(frame_number=frame_number, has_motion=has_motion)
         if completed_event is not None:
+            completed_events.append(completed_event)
             print(f"Motion event: frames "
                   f"{completed_event.start_frame}-{completed_event.end_frame}")
 
@@ -94,6 +104,7 @@ def main():
 
     final_event = tracker.finish() # close last occuring event
     if final_event is not None:
+        completed_events.append(final_event)
         print(
             f"Motion event: frames "
             f"{final_event.start_frame}-{final_event.end_frame}"
@@ -102,6 +113,8 @@ def main():
     cap.release()
     cv2.destroyAllWindows()
 
+    save_events_to_json(completed_events, str(json_output_path), fps)
+    print(f"Saved {len(completed_events)} events to {json_output_path}")
 
 if __name__ == "__main__":
     main()

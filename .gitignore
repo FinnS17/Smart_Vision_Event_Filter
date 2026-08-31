@@ -14,4 +14,4 @@ dist/
 # Data
 videos/
 outputs/
-
+*events.json
