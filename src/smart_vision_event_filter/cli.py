@@ -6,6 +6,7 @@ import cv2
 from smart_vision_event_filter.detection import detect_motion_boxes
 from smart_vision_event_filter.events import MotionEventTracker
 from smart_vision_event_filter.reporting import save_events_to_json
+from smart_vision_event_filter.clips import export_event_clips
 
 FRAME_DELAY = 5  # Wartezeit für die Tastatureingabe in Millisekunden.
 
@@ -24,11 +25,14 @@ def main():
         default=10,
         help="maximum number of consecutive frames without motion inside an event"
     )
-
     parser.add_argument(
         "--output",
         default="outputs/motion_events.json",
         help="path for the generated JSON event report"
+    )
+    parser.add_argument(
+        "--clips-dir",
+        help="directory for exported event clips"
     )
     args = parser.parse_args()
 
@@ -115,6 +119,9 @@ def main():
 
     save_events_to_json(completed_events, str(json_output_path), fps)
     print(f"Saved {len(completed_events)} events to {json_output_path}")
+    if args.clips_dir is not None:
+        clip_paths = export_event_clips(video_path, completed_events, args.clips_dir)
+        print(f"Exportetd {len(clip_paths)} clips to {args.clips_dir}")
 
 if __name__ == "__main__":
     main()
