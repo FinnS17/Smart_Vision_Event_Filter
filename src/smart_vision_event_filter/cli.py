@@ -34,6 +34,12 @@ def main():
         "--clips-dir",
         help="directory for exported event clips"
     )
+    parser.add_argument(
+        "--clip-padding-seconds",
+        type=float,
+        default=1.0,
+        help="seconds of context before and after each event clip"
+    )
     args = parser.parse_args()
 
 
@@ -120,7 +126,7 @@ def main():
     save_events_to_json(completed_events, str(json_output_path), fps)
     print(f"Saved {len(completed_events)} events to {json_output_path}")
     if args.clips_dir is not None:
-        clip_paths = export_event_clips(video_path, completed_events, args.clips_dir)
+        clip_paths = export_event_clips(video_path, completed_events, args.clips_dir, padding_seconds=args.clip_padding_seconds)
         print(f"Exportetd {len(clip_paths)} clips to {args.clips_dir}")
 
 if __name__ == "__main__":

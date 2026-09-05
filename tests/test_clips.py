@@ -19,7 +19,7 @@ def test_export_event_clips_writes_expected_frames(tmp_path):
     source_writer.release()
     events = [MotionEvent(start_frame=2, end_frame=5)]
     output_dir = tmp_path / "clips"
-    clip_paths = export_event_clips(str(source_path), events, str(output_dir))
+    clip_paths = export_event_clips(str(source_path), events, str(output_dir), padding_seconds=0.2)
     assert len(clip_paths) == 1
     assert output_dir.joinpath("event_001.mp4").exists()
     exported_capture = cv2.VideoCapture(clip_paths[0])
@@ -31,4 +31,4 @@ def test_export_event_clips_writes_expected_frames(tmp_path):
             break
         exported_frame_count += 1
     exported_capture.release()
-    assert exported_frame_count == 4
+    assert exported_frame_count == 8
