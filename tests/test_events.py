@@ -1,6 +1,7 @@
 from smart_vision_event_filter.events import MotionEvent, MotionEventTracker
 
 def test_new_motion_event_is_active():
+    """Check that a new motion event starts in the active state."""
     event = MotionEvent(start_frame=10)
 
     assert event.start_frame == 10
@@ -9,6 +10,7 @@ def test_new_motion_event_is_active():
 
 
 def test_motion_event_can_be_closed():
+    """Check that an event stores its end frame when it is closed."""
     event = MotionEvent(start_frame=10)
     event.close(end_frame=25)
 
@@ -17,6 +19,7 @@ def test_motion_event_can_be_closed():
 
 
 def test_tracker_creates_event_from_consecutive_motion_frames():
+    """Check that consecutive motion frames keep one event active."""
     tracker = MotionEventTracker()
 
     assert tracker.update(frame_number=10, has_motion = True) is None
@@ -24,11 +27,13 @@ def test_tracker_creates_event_from_consecutive_motion_frames():
 
 
 def test_tracker_starts_without_active_event():
+    """Check that a new tracker does not contain an active event."""
     tracker = MotionEventTracker()
     assert tracker.current_event is None
 
 
 def test_tracker_completes_event_when_motion_stops():
+    """Check that the tracker returns an event after motion stops."""
     tracker = MotionEventTracker()
 
     result = tracker.update(frame_number= 10, has_motion=True)
@@ -46,6 +51,7 @@ def test_tracker_completes_event_when_motion_stops():
 
 
 def test_tracker_can_create_multiple_events():
+    """Check that one tracker can create separate events over time."""
     tracker = MotionEventTracker()
     tracker.update(frame_number=10, has_motion=True)
     tracker.update(frame_number=11, has_motion=True)
@@ -69,6 +75,7 @@ def test_tracker_can_create_multiple_events():
 
 
 def test_tracker_tolerates_short_motion_gap():
+    """Check that a short gap without motion does not split an event."""
     tracker = MotionEventTracker(max_gap_frames=2)
     tracker.update(frame_number=10, has_motion=True)
     result = tracker.update(frame_number=11, has_motion=False)
@@ -84,6 +91,7 @@ def test_tracker_tolerates_short_motion_gap():
 
 
 def test_tracker_finishes_active_event():
+    """Check that finish closes an event at the end of the video."""
     tracker = MotionEventTracker(max_gap_frames=5)
     tracker.update(frame_number=10, has_motion=True)
     tracker.update(frame_number=11, has_motion=True)
@@ -92,5 +100,4 @@ def test_tracker_finishes_active_event():
     assert result.start_frame == 10
     assert result.end_frame == 11
     assert tracker.current_event is None
-    
     

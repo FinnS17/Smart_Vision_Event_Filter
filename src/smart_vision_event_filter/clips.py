@@ -6,6 +6,7 @@ from smart_vision_event_filter.events import MotionEvent
 
 
 def export_event_clips(video_path: str, events: list[MotionEvent], output_dir: str, padding_seconds: float = 0.0) -> list[str]:
+    """Export one video clip for every completed motion event."""
     output_directory = Path(output_dir)
     output_directory.mkdir(parents=True, exist_ok=True)
     capture = cv2.VideoCapture(video_path)

@@ -6,9 +6,7 @@ MIN_AREA = 8000  # Kleinere Flächen gelten als Rauschen und werden ignoriert.
 
 
 def detect_motion_boxes(previous_gray, current_gray):
-    """Returns boxes for sufficiently sized movement region
-    from difference of two frames
-    """
+    """Find large motion areas by comparing two grayscale video frames."""
 
     diff = cv2.absdiff(previous_gray, current_gray)
 

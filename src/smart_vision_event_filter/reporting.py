@@ -3,6 +3,7 @@ import json
 from smart_vision_event_filter.events import MotionEvent
 
 def save_events_to_json(events: list[MotionEvent], output_path: str, fps: float) -> None:
+    """Save completed motion events with frame and time data as JSON."""
     event_out = []
     for event in events:
         if event.end_frame is None:

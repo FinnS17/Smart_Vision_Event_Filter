@@ -4,12 +4,14 @@ from smart_vision_event_filter.detection import detect_motion_boxes
 
 
 def test_returns_no_boxes_for_identical_frames():
+    """Check that identical frames do not produce motion boxes."""
     frame = np.zeros((100,100), dtype=np.uint8)
     boxes = detect_motion_boxes(frame, frame)
 
     assert boxes == []
 
 def test_returns_box_for_large_changed_region():
+    """Check that a large changed image region produces one motion box."""
     previous_frame = np.zeros((200,200), dtype=np.uint8)
     current_frame = previous_frame.copy()
 

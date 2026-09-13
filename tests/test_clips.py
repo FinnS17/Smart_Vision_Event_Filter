@@ -6,6 +6,7 @@ from smart_vision_event_filter.events import MotionEvent
 
 
 def test_export_event_clips_writes_expected_frames(tmp_path):
+    """Check that clip export writes the expected number of video frames."""
     source_path = tmp_path / "source.mp4"
     width = 64
     height = 48

@@ -3,6 +3,7 @@ from smart_vision_event_filter.events import MotionEvent
 
 
 def test_evaluate_events_calculates_frame_metrics():
+    """Check frame-level precision and recall for overlapping event ranges."""
     ground_truth_events = [MotionEvent(start_frame=10, end_frame=19),]
     predicted_events = [MotionEvent(start_frame=15, end_frame=24),]
     metrics = evaluate_events(predicted_events, ground_truth_events)

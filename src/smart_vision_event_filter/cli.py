@@ -11,6 +11,7 @@ from smart_vision_event_filter.clips import export_event_clips
 FRAME_DELAY = 5  # Wartezeit für die Tastatureingabe in Millisekunden.
 
 def main():
+    """Run the complete motion detection pipeline from the command line."""
 
     parser = argparse.ArgumentParser(
         description="Detects motion events in a video file."
