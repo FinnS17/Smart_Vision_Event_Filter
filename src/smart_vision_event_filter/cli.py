@@ -41,7 +41,17 @@ def main():
         default=1.0,
         help="seconds of context before and after each event clip"
     )
+    parser.add_argument(
+        "--enable-ai",
+        action="store_true",
+        help="run object detection on frames containing motion",
+    )
     args = parser.parse_args()
+
+    object_detector = None
+    if args.enable_ai:
+        from smart_vision_event_filter.inference import load_object_detector, detect_objects
+        object_detector = load_object_detector()
 
 
     video_path = args.video_path
@@ -79,6 +89,11 @@ def main():
 
         motion_boxes = detect_motion_boxes(previous_gray, gray)
         has_motion = bool(motion_boxes) # at least one movement
+
+        object_detections = []
+        if object_detector is not None and has_motion:
+            object_detections = detect_objects(object_detector, frame)
+
         completed_event = tracker.update(frame_number=frame_number, has_motion=has_motion)
         if completed_event is not None:
             completed_events.append(completed_event)
@@ -94,15 +109,14 @@ def main():
 
             # Das gemeinsame Rechteck und der Text machen den Frame für Menschen lesbar.
             cv2.rectangle(frame, (min_x, min_y), (max_x, max_y), (0, 255, 0), 3)
-            cv2.putText(
-                frame,
-                "Motion Detected",
-                (min_x, min_y - 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (0, 255, 0),
-                2,
-            )
+            cv2.putText(frame, "Motion Detected", (min_x, min_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2,)
+
+        for detection in object_detections:
+            x1, y1, x2, y2 = detection.bounding_box
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 255), 2)
+            label = (f"{detection.class_name} "
+                        f"{detection.confidence:.2f}")
+            cv2.putText(frame, label, (x1, max(y1 -10, 20)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)
 
         # Aktuellen, bereits markierten Frame im Fenster anzeigen.
         cv2.imshow("Motion Detection", frame)

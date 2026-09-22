@@ -15,3 +15,5 @@ dist/
 videos/
 outputs/
 *events.json
+
+*.pt

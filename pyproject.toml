@@ -16,6 +16,9 @@ dev = [
     "pytest>=8,<10",
     "numpy>=2,<3",
 ]
+ai = [
+    "ultralytics>=8,<9",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
