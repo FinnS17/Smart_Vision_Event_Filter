@@ -1,11 +1,12 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
 class MotionEvent:
-    """saves an event"""
+    """Store the time span and object classes of one motion event."""
     start_frame: int
     end_frame: int | None = None
+    detected_objects: list[str] = field(default_factory=list)  # Each event gets its own list.
 
     @property
     def is_active(self) -> bool:
@@ -20,35 +21,37 @@ class MotionEvent:
 
 
 class MotionEventTracker:
-    """Memory for active events"""
+    """Remember motion across frames until an event is finished."""
 
     def __init__(self, max_gap_frames: int = 0) -> None:
         """Create a tracker that can tolerate short gaps without motion."""
-        self.current_event: MotionEvent | None = None # aktuelle Event oder None
-        self.max_gap_frames = max_gap_frames # erlaubte Lückengröße
-        self.gap_frames = 0 # aktuelle Lückengröße
-        self.last_motion_frame: int | None = None # letzer Frame mit Bewegung
+        self.current_event: MotionEvent | None = None  # The event still in progress.
+        self.max_gap_frames = max_gap_frames  # Allowed gap without motion.
+        self.gap_frames = 0  # Current gap without motion.
+        self.last_motion_frame: int | None = None  # Last frame that had motion.
 
     def update(self, frame_number: int, has_motion: bool) -> MotionEvent | None:
         """Update the tracker with the motion result of one video frame."""
-        # called for every frame
+        # Called once for each processed frame.
         if has_motion:
-            self.gap_frames = 0 # aktuelle Lückengröße bei erkannter Bewegung zurücksetzen
-            self.last_motion_frame = frame_number # bei jedem Frame mit Motion sich ihn merken
-            if self.current_event is None: # start new event if no current event
+            self.gap_frames = 0  # Motion ends the current gap.
+            self.last_motion_frame = frame_number
+            if self.current_event is None:  # Start a new event if needed.
                 self.current_event = MotionEvent(start_frame=frame_number)
             return None
 
-        if self.current_event is None: # if no current event, nothing to close
+        if self.current_event is None:  # No active event to close.
             return None
 
+        # Keep the same event through short gaps, such as 1 or 2 quiet frames.
         self.gap_frames += 1
         if self.gap_frames <= self.max_gap_frames:
             return None
 
-        # wenn keine Motion, es aktuell laufendes Event gibt und Gap frames überschritten -> Event beenden
+        # The quiet gap is too long; end at the last frame with real motion.
         self.current_event.close(end_frame=self.last_motion_frame)
 
+        # Save the event before clearing the tracker's current state.
         completed_event = self.current_event
         self.current_event = None
         self.gap_frames = 0
@@ -58,7 +61,7 @@ class MotionEventTracker:
 
     def finish(self) -> MotionEvent | None:
         """Close and return the active event when video processing finishes."""
-        # eg. current_event = MotionEvent(start_frame=100, end_frame=None)
+        # Example: current_event = MotionEvent(start_frame=100, end_frame=None)
         # last_motion_frame = 102
         # gap_frames = 0
 
@@ -73,4 +76,3 @@ class MotionEventTracker:
         self.last_motion_frame = None
 
         return completed_event
-
