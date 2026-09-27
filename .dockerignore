@@ -1,0 +1,11 @@
+.git
+.venv
+venv
+__pycache__
+build
+dist
+videos
+outputs
+.env
+*.pt
+*.egg-info

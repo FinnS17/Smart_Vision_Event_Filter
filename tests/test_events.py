@@ -1,5 +1,6 @@
 from smart_vision_event_filter.events import MotionEvent, MotionEventTracker
 
+
 def test_new_motion_event_is_active():
     """Check that a new motion event starts in the active state."""
     event = MotionEvent(start_frame=10)

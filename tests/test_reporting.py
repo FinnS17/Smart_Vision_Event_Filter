@@ -3,6 +3,7 @@ import json
 from smart_vision_event_filter.events import MotionEvent
 from smart_vision_event_filter.reporting import save_events_to_json
 
+
 def test_save_events_to_json(tmp_path):
     """Check that motion event frame and time data is written to JSON."""
     output_path = tmp_path / "events.json"

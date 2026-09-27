@@ -1,4 +1,6 @@
+import os
+
 YOLO_MODEL_NAME = "yolo26n.pt"
 YOLO_CONFIDENCE_THRESHOLD = 0.5
 IMAGE_SIZE = 640
-DEVICE = "mps"
+DEVICE = os.getenv("SVF_DEVICE", "mps")

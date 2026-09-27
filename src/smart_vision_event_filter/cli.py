@@ -2,10 +2,10 @@ import argparse
 
 import cv2
 
+from smart_vision_event_filter.clips import export_event_clips
 from smart_vision_event_filter.detection import detect_motion_boxes
 from smart_vision_event_filter.events import MotionEventTracker
 from smart_vision_event_filter.reporting import save_events_to_json
-from smart_vision_event_filter.clips import export_event_clips
 
 
 def main():
@@ -61,7 +61,11 @@ def main():
     object_detector = None
     if args.enable_ai:
         # Load YOLO only when the user enables AI.
-        from smart_vision_event_filter.inference import load_object_detector, detect_objects, overlaps_motion
+        from smart_vision_event_filter.inference import (
+            detect_objects,
+            load_object_detector,
+            overlaps_motion,
+        )
         object_detector = load_object_detector()
 
 

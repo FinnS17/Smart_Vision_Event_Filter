@@ -4,6 +4,7 @@ from ultralytics import YOLO
 
 from smart_vision_event_filter import config
 
+
 @dataclass
 class ObjectDetection:
     """Keep one YOLO result in a simple form for the rest of the project."""

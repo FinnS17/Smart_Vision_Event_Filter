@@ -15,6 +15,7 @@ dependencies = [
 dev = [
     "pytest>=8,<10",
     "numpy>=2,<3",
+    "ruff>=0.16,<1",
 ]
 ai = [
     "ultralytics>=8,<9",
